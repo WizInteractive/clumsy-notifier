@@ -8,13 +8,19 @@ trait Notified {
 
     public function notifier()
     {
+        return $this->morphToMany('\Clumsy\Notifier\Models\Notification', 'notification_association');
+    }
+
+    public function baseNotifier()
+    {
         return $this->morphToMany('\Clumsy\Notifier\Models\Notification', 'notification_association')
-                    ->orderBy('created_at', 'desc');
+                    ->where('visible_from', '>=', Carbon::now()->toDateTimeString())
+                    ->orderBy('visible_from', 'desc');
     }
 
     public function allNotifications()
     {
-        return $this->notifier()
+        return $this->baseNotifier()
                     ->withPivot('read')
                     ->with('meta');
     }
@@ -63,9 +69,9 @@ trait Notified {
         $this->notifier()->attach($notification->id);
     }
 
-    public function notify($attributes = array())
+    public function notify($attributes = array(), $visible_from = false)
     {
-        Notifier::notify($attributes, $this);
+        Notifier::notify($attributes, $this, $visible_from);
 
         return $this;
     }

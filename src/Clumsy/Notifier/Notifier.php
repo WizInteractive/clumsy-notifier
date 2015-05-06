@@ -9,10 +9,16 @@ class Notifier {
 
 	protected $resolvers = array();
 
-	public function create($notification_array = array())
+	public function create($notification_array = array(), $visible_from = false)
 	{
+		$notification_array = (array)$notification_array;
+
+		if (!$visible_from)
+		{
+			$visible_from = Carbon::now();
+		}
+
 		$attributes = array();
-		
 		array_walk($notification_array, function($value, $key) use(&$attributes)
 		{
 			if (!$key)
@@ -28,7 +34,8 @@ class Notifier {
 		});
 
 		$notification = Notification::create(array(
-			'slug' => key($attributes),
+			'slug'         => key($attributes),
+			'visible_from' => $visible_from->toDateTimeString(),
 		));
 
 		$metaModels = array();
@@ -60,14 +67,14 @@ class Notifier {
 		}
 	}
 	
-	public function notify($attributes = array(), $target = null)
+	public function notify($attributes = array(), $target = null, $visible_from = false)
 	{
 		if (!$target)
 		{
 			return false;
 		}
 
-		return $this->batchOrSingle($this->create($attributes), $target);
+		return $this->batchOrSingle($this->create($attributes, $visible_from), $target);
 	}
 
 	public function resolver($slug, Closure $callback)

@@ -17,6 +17,7 @@ class CreateNotificationsTable extends Migration {
 			$table->increments('id');
 			$table->string('slug');
 			$table->timestamps();
+			$table->datetime('visible_from');
 		});
 	}
 
