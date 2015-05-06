@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\DB;
 use Clumsy\Notifier\Facade as Notifier;
 use Clumsy\Notifier\Models\Notification;
+use Carbon\Carbon;
 
 trait Notified {
 
@@ -14,7 +15,7 @@ trait Notified {
     public function baseNotifier()
     {
         return $this->morphToMany('\Clumsy\Notifier\Models\Notification', 'notification_association')
-                    ->where('visible_from', '>=', Carbon::now()->toDateTimeString())
+                    ->where('visible_from', '<=', Carbon::now()->toDateTimeString())
                     ->orderBy('visible_from', 'desc');
     }
 

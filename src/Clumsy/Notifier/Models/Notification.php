@@ -6,6 +6,15 @@ class Notification extends \Eloquent {
 
     protected $guarded = array('id');
 
+    public $timestamps = false;
+
+    public function getDates()
+    {
+        return array(
+            'visible_from',
+        );
+    }
+
     public function meta()
     {
         return $this->hasMany('\Clumsy\Notifier\Models\NotificationMeta');
