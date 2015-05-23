@@ -22,7 +22,7 @@ trait Notified {
     public function allNotifications()
     {
         return $this->baseNotifier()
-                    ->withPivot('read')
+                    ->withPivot('read', 'triggered')
                     ->with('meta');
     }
 
@@ -34,6 +34,11 @@ trait Notified {
     public function unreadNotifications()
     {
         return $this->allNotifications()->where('notification_associations.read', 0);
+    }
+
+    public function notificationMailRecipients(Notification $notification)
+    {
+        return array();
     }
 
     public function updateReadStatus($read = true, $notification_id = false)
@@ -67,7 +72,35 @@ trait Notified {
 
     public function dispatchNotification(Notification $notification)
     {
-        $this->notifier()->attach($notification->id);
+        $trigger = $notification->shouldTrigger();
+
+        $this->notifier()->attach($notification->id, array('triggered' => $trigger));
+
+        if ($trigger)
+        {
+            $this->triggerNotification($notification);
+        }
+    }
+
+    public function triggerNotification(Notification $notification)
+    {
+        $recipients = (array)$this->notificationMailRecipients(Notification $notification);
+
+        if (sizeof(array_filter($recipients)))
+        {
+            Notifier::mail($notification, $recipients);
+        }
+    }
+
+    public function triggerNotificationAndSave(Notification $notification)
+    {
+        $this->triggerNotification($notification);
+        
+        DB::table('notification_associations')
+          ->where('notification_id', $notification->id)
+          ->where('notification_association_type', class_basename($this))
+          ->where('notification_association_id', $this->id)
+          ->update(array('triggered' => true));
     }
 
     public function notify($attributes = array(), $visible_from = false)

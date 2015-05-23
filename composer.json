@@ -11,8 +11,7 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "clumsy/assets": "dev-master",
-        "intervention/image": "2.*"
+        "illuminate/support": "4.*"
     },
     "autoload": {
         "classmap": [
@@ -24,7 +23,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.2.1-dev"
+            "dev-master": "0.3.0-dev"
         }
     },
     "minimum-stability": "dev",

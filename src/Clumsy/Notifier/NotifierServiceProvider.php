@@ -19,6 +19,25 @@ class NotifierServiceProvider extends ServiceProvider {
 	public function register()
 	{
         $this->app['clumsy.notifier'] = new Notifier;
+
+        $this->app['command.clumsy.trigger-pending-notifications'] = $this->app->share(function($app)
+            {
+                return new Console\TriggerPendingNotificationsCommand();
+            });
+
+        $this->commands(array('command.clumsy.trigger-pending-notifications'));
+	}
+
+	/**
+	 * Boot the service provider.
+	 *
+	 * @return void
+	 */
+	public function boot()
+	{
+		$path = __DIR__.'/../..';
+
+        $this->package('clumsy/notifier', 'clumsy/notifier', $path);
 	}
 
 	/**

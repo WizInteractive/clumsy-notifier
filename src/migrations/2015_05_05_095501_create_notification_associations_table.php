@@ -18,6 +18,7 @@ class CreateNotificationAssociationsTable extends Migration {
 			$table->integer('notification_id')->unsigned();
 			$table->string('notification_association_type');
 			$table->integer('notification_association_id')->unsigned();
+			$table->boolean('triggered')->default(0);
 			$table->boolean('read')->default(0);
 
 			$table->foreign('notification_id')->references('id')->on('notifications');

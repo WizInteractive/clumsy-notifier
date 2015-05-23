@@ -2,13 +2,29 @@
 
 use Closure;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Mail;
 use Clumsy\Notifier\Models\Notification;
 use Clumsy\Notifier\Models\NotificationMeta;
 use Carbon\Carbon;
 
 class Notifier {
 
-	protected $resolvers = array();
+	protected $general_title_resolver;
+	protected $default_title;
+
+	protected $resolvers = array(
+		'title'   => array(),
+		'meta'    => array(),
+		'content' => array(),
+	);
+
+	public function __construct()
+	{
+		$this->general_title_resolver = function()
+		{
+			return $this->defaultTitle();
+		};
+	}
 
 	public function create($notification_array = array(), $visible_from = false)
 	{
@@ -78,20 +94,106 @@ class Notifier {
 		return $this->batchOrSingle($this->create($attributes, $visible_from), $target);
 	}
 
-	public function resolver($slug, Closure $callback)
+	public function setGeneralTitleResolver(Closure $callback)
 	{
-		$this->resolvers[$slug] = $callback;
+		$this->general_title_resolver = $callback;
 	}
 
-	public function resolve($meta, $notification)
+	public function setDefaultTitle($title)
 	{
-		if (isset($this->resolvers[$notification->slug]))
+		$this->default_title = $title;
+	}
+
+	public function defaultTitle()
+	{
+		return $this->default_title ? $this->default_title : trans('clumsy/notifier::notifications.default-title');
+	}
+
+	public function setResolver($type, $slug, Closure $callback)
+	{
+		$this->resolvers[$type][$slug] = $callback;
+	}
+
+	public function getResolver($type, $slug)
+	{
+		return array_get($this->resolvers, "{$type}.{$slug}");
+	}
+
+	public function hasResolver($type, $slug)
+	{
+		$resolver = $this->getResolver($type, $slug);
+
+		return ($resolver instanceof Closure);
+	}
+
+	public function titleResolver($slug, Closure $callback)
+	{
+		$this->setResolver('title', $slug, $callback);
+	}
+
+	public function resolveTitle(Notification $notification)
+	{
+		$callback = $this->hasResolver('title', $notification->slug)
+					? $this->getResolver('title', $notification->slug)
+					: $this->general_title_resolver;
+
+		return $callback($notification);
+	}
+
+	public function metaResolver($slug, Closure $callback)
+	{
+		$this->setResolver('meta', $slug, $callback);
+	}
+
+	public function resolveMeta($meta, $notification)
+	{
+		if ($this->hasResolver('meta', $notification->slug))
 		{
-			$callback = $this->resolvers[$notification->slug];
+			$callback = $this->getResolver('meta', $notification->slug);
 
 			return $callback($meta, $notification);
 		}
 
 		return $meta;
+	}
+
+	public function resolver($slug, Closure $callback)
+	{
+		$this->setResolver('content', $slug, $callback);
+	}
+
+	public function resolve(&$notification)
+	{
+		if ($this->hasResolver('content', $notification->slug))
+		{
+			$callback = $this->getResolver('content', $notification->slug);
+
+			$notification->content = $callback($notification);
+		}
+
+		$notification->content = trans("clumsy/notifier::notifications.{$notification->slug}", $notification->meta_attributes);
+	}
+
+	public function mail(Notification $notification, array $recipients)
+	{
+		$subject = $notification->title ? $notification->title : $this->resolveTitle($notification);
+
+		$view = View::exists("clumsy/notifier::emails.{$notification->slug}")
+				? "clumsy/notifier::emails.{$notification->slug}"
+				: "clumsy/notifier::email";
+
+		Mail::send($view, compact('notification'), function($message) use($recipients, $subject)
+		{
+		    foreach ($recipients as $address => $recipient)
+		    {
+		    	if (!$address)
+		    	{
+					// Allow recipients to be non-associative array of addresses
+		    		$address = $recipient;
+		    	}
+
+		    	$message->to($address, $recipient)->subject($subject);
+		    }
+		});
 	}
 }
