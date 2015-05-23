@@ -84,7 +84,7 @@ trait Notified {
 
     public function triggerNotification(Notification $notification)
     {
-        $recipients = (array)$this->notificationMailRecipients(Notification $notification);
+        $recipients = (array)$this->notificationMailRecipients($notification);
 
         if (sizeof(array_filter($recipients)))
         {
