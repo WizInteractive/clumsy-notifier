@@ -3,6 +3,7 @@
 use Closure;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\View;
 use Clumsy\Notifier\Models\Notification;
 use Clumsy\Notifier\Models\NotificationMeta;
 use Carbon\Carbon;

@@ -53,7 +53,8 @@ class TriggerPendingNotificationsCommand extends Command {
             $this->info("No pending notifications to trigger");
         }
 
-        Notification::select('*', 'notification_associations.id as notification_association_id')
+        Notification::with('meta')
+                    ->select('*', 'notification_associations.id as pivot_id')
                     ->join('notification_associations', 'notifications.id', '=', 'notification_associations.notification_id')
                     ->where('triggered', false)
                     ->where('visible_from', '<=', Carbon::now()->toDateTimeString())
@@ -70,7 +71,7 @@ class TriggerPendingNotificationsCommand extends Command {
                         }
 
                         DB::table('notification_associations')
-                          ->whereIn('id', $notifications->lists('notification_association_id'))
+                          ->whereIn('id', $notifications->lists('pivot_id'))
                           ->update(array('triggered' => true));
 
                         $count = count($notifications);
