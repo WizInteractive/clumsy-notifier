@@ -127,9 +127,12 @@ class Notifier {
 		return ($resolver instanceof Closure);
 	}
 
-	public function titleResolver($slug, Closure $callback)
+	public function titleResolver($slugs, Closure $callback)
 	{
-		$this->setResolver('title', $slug, $callback);
+		foreach ((array)$slugs as $slug)
+		{
+			$this->setResolver('title', $slug, $callback);
+		}
 	}
 
 	public function resolveTitle(Notification $notification)
@@ -141,9 +144,12 @@ class Notifier {
 		return $callback($notification);
 	}
 
-	public function metaResolver($slug, Closure $callback)
+	public function metaResolver($slugs, Closure $callback)
 	{
-		$this->setResolver('meta', $slug, $callback);
+		foreach ((array)$slugs as $slug)
+		{
+			$this->setResolver('meta', $slug, $callback);
+		}
 	}
 
 	public function resolveMeta($meta, $notification)
@@ -158,9 +164,12 @@ class Notifier {
 		return $meta;
 	}
 
-	public function resolver($slug, Closure $callback)
+	public function resolver($slugs, Closure $callback)
 	{
-		$this->setResolver('content', $slug, $callback);
+		foreach ((array)$slugs as $slug)
+		{
+			$this->setResolver('content', $slug, $callback);
+		}
 	}
 
 	public function resolve(&$notification)
