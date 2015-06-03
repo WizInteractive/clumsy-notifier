@@ -18,7 +18,7 @@ class CreateNotificationMetaTable extends Migration {
 			$table->string('key');
 			$table->text('value')->nullable()->default(null);
 
-			$table->foreign('notification_id')->references('id')->on('notifications');
+			$table->foreign('notification_id')->references('id')->on('notifications')->onDelete('cascade');
 			$table->index('key');
 		});
 	}

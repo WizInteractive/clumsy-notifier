@@ -21,7 +21,7 @@ class CreateNotificationAssociationsTable extends Migration {
 			$table->boolean('triggered')->default(0);
 			$table->boolean('read')->default(0);
 
-			$table->foreign('notification_id')->references('id')->on('notifications');
+			$table->foreign('notification_id')->references('id')->on('notifications')->onDelete('cascade');
 			$table->index('notification_association_type');
 			$table->index('notification_association_id');
 		});
