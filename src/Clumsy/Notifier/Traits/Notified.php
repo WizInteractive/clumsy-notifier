@@ -28,12 +28,12 @@ trait Notified {
 
     public function readNotifications()
     {
-        return $this->allNotifications()->where('notification_associations.read', 1)->get();
+        return $this->baseNotifier()->where('notification_associations.read', 1)->get();
     }
 
     public function unreadNotifications()
     {
-        return $this->allNotifications()->where('notification_associations.read', 0)->get();
+        return $this->baseNotifier()->where('notification_associations.read', 0)->get();
     }
 
     public function notificationMailRecipients(Notification $notification)
