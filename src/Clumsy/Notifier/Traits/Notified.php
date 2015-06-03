@@ -15,25 +15,25 @@ trait Notified {
     public function baseNotifier()
     {
         return $this->morphToMany('\Clumsy\Notifier\Models\Notification', 'notification_association')
+                    ->withPivot('read', 'triggered')
+                    ->with('meta')
                     ->where('visible_from', '<=', Carbon::now()->toDateTimeString())
                     ->orderBy('visible_from', 'desc');
     }
 
     public function allNotifications()
     {
-        return $this->baseNotifier()
-                    ->withPivot('read', 'triggered')
-                    ->with('meta');
+        return $this->baseNotifier()->get();
     }
 
     public function readNotifications()
     {
-        return $this->allNotifications()->where('notification_associations.read', 1);
+        return $this->allNotifications()->where('notification_associations.read', 1)->get();
     }
 
     public function unreadNotifications()
     {
-        return $this->allNotifications()->where('notification_associations.read', 0);
+        return $this->allNotifications()->where('notification_associations.read', 0)->get();
     }
 
     public function notificationMailRecipients(Notification $notification)
