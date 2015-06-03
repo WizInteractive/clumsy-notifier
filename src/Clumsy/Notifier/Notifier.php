@@ -170,13 +170,11 @@ class Notifier {
 			$callback = $this->getResolver('content', $notification->slug);
 
 			$notification->content = $callback($notification);
-
-			return $notification->content;
 		}
-
-		$notification->content = trans("clumsy/notifier::notifications.{$notification->slug}", $notification->meta_attributes);
-
-		return $notification->content;
+		else
+		{
+			$notification->content = trans("clumsy/notifier::notifications.{$notification->slug}", $notification->meta_attributes);
+		}
 	}
 
 	public function mail(Notification $notification, array $recipients)
