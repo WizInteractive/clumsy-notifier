@@ -1,7 +1,7 @@
 <?php namespace Clumsy\Notifier;
 
 use Closure;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\View;
 use Clumsy\Notifier\Models\Notification;
