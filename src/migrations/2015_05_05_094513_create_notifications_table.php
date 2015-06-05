@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateClumsyNotificationsTable extends Migration {
+class CreateNotificationsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,7 +12,7 @@ class CreateClumsyNotificationsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('clumsy_notifications', function(Blueprint $table)
+		Schema::create('notifications', function(Blueprint $table)
 		{
 			$table->increments('id');
 			$table->string('slug');
@@ -28,7 +28,7 @@ class CreateClumsyNotificationsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('clumsy_notifications');
+		Schema::drop('notifications');
 	}
 
 }

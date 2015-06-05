@@ -7,8 +7,6 @@ class Notification extends \Eloquent {
 
     protected $guarded = array('id');
 
-    protected $table = 'clumsy_notifications';
-
     public $timestamps = false;
 
     public $resolved = false;

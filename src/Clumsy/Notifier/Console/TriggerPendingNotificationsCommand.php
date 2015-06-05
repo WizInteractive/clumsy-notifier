@@ -42,8 +42,8 @@ class TriggerPendingNotificationsCommand extends Command {
      */
     public function fire()
     {
-        $pending = DB::table('clumsy_notifiables')
-                     ->join('clumsy_notifications', 'clumsy_notifications.id', '=', 'clumsy_notifiables.notification_id')
+        $pending = DB::table('notification_associations')
+                     ->join('notifications', 'notifications.id', '=', 'notification_associations.notification_id')
                      ->where('triggered', false)
                      ->where('visible_from', '<=', Carbon::now()->toDateTimeString())
                      ->count();
@@ -54,23 +54,23 @@ class TriggerPendingNotificationsCommand extends Command {
         }
 
         Notification::with('meta')
-                    ->select('*', 'clumsy_notifiables.id as pivot_id')
-                    ->join('clumsy_notifiables', 'clumsy_notifications.id', '=', 'clumsy_notifiables.notification_id')
+                    ->select('*', 'notification_associations.id as pivot_id')
+                    ->join('notification_associations', 'notifications.id', '=', 'notification_associations.notification_id')
                     ->where('triggered', false)
                     ->where('visible_from', '<=', Carbon::now()->toDateTimeString())
                     ->chunk(200, function($notifications)
                     {
                         foreach ($notifications as $notification)
                         {
-                            $model = $notification->notifiable_type;
-                            $target = $model::find($notification->notifiable_id);
+                            $model = $notification->notification_association_type;
+                            $target = $model::find($notification->notification_association_id);
                             if ($target)
                             {
                                 $target->triggerNotification($notification);
                             }
                         }
 
-                        DB::table('clumsy_notifiables')
+                        DB::table('notification_associations')
                           ->whereIn('id', $notifications->lists('pivot_id'))
                           ->update(array('triggered' => true));
 

@@ -4,7 +4,7 @@ class NotificationMeta extends \Eloquent {
 
     protected $guarded = array();
 
-	protected $table = 'clumsy_notification_meta';
+	protected $table = 'notification_meta';
 
     public $timestamps = false;
 }
