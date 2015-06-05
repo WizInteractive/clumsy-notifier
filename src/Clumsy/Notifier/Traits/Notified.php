@@ -9,16 +9,28 @@ trait Notified {
 
     public function notifier()
     {
-        return $this->morphToMany('\Clumsy\Notifier\Models\Notification', 'notification_association');
+        return $this->morphToMany(
+            '\Clumsy\Notifier\Models\Notification',
+            'notifiable',
+            'clumsy_notifiables',
+            'notifiable_id',
+            'notifiable_type'
+        );
     }
 
     public function baseNotifier()
     {
-        return $this->morphToMany('\Clumsy\Notifier\Models\Notification', 'notification_association')
-                    ->withPivot('read', 'triggered')
-                    ->with('meta')
-                    ->where('visible_from', '<=', Carbon::now()->toDateTimeString())
-                    ->orderBy('visible_from', 'desc');
+        return $this->morphToMany(
+            '\Clumsy\Notifier\Models\Notification',
+            'notifiable',
+            'clumsy_notifiables',
+            'notifiable_id',
+            'notifiable_type'
+        )
+        ->withPivot('read', 'triggered')
+        ->with('meta')
+        ->where('visible_from', '<=', Carbon::now()->toDateTimeString())
+        ->orderBy('visible_from', 'desc');
     }
 
     public function allNotifications()
@@ -28,12 +40,12 @@ trait Notified {
 
     public function readNotifications()
     {
-        return $this->baseNotifier()->where('notification_associations.read', 1)->get();
+        return $this->baseNotifier()->where('clumsy_notifiables.read', 1)->get();
     }
 
     public function unreadNotifications()
     {
-        return $this->baseNotifier()->where('notification_associations.read', 0)->get();
+        return $this->baseNotifier()->where('clumsy_notifiables.read', 0)->get();
     }
 
     public function notificationMailRecipients(Notification $notification)
@@ -43,15 +55,15 @@ trait Notified {
 
     public function updateReadStatus($read = true, $notification_id = false)
     {
-        $query = DB::table('notification_associations');
+        $query = DB::table('clumsy_notifiables');
 
         if ($notification_id)
         {
             $query->where('notification_id', $notification_id);
         }
         
-        return $query->where('notification_association_type', class_basename(get_class($this)))
-                     ->where('notification_association_id', $this->id)
+        return $query->where('notifiable_type', class_basename(get_class($this)))
+                     ->where('notifiable_id', $this->id)
                      ->update(array('read' => (int)$read));
     }
 
@@ -96,10 +108,10 @@ trait Notified {
     {
         $this->triggerNotification($notification);
         
-        DB::table('notification_associations')
+        DB::table('clumsy_notifiables')
           ->where('notification_id', $notification->id)
-          ->where('notification_association_type', class_basename($this))
-          ->where('notification_association_id', $this->id)
+          ->where('notifiable_type', class_basename($this))
+          ->where('notifiable_id', $this->id)
           ->update(array('triggered' => true));
     }
 

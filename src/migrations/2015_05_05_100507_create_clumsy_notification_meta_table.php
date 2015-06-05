@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateNotificationMetaTable extends Migration {
+class CreateClumsyNotificationMetaTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,13 +12,13 @@ class CreateNotificationMetaTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('notification_meta', function(Blueprint $table)
+		Schema::create('clumsy_notification_meta', function(Blueprint $table)
 		{
 			$table->integer('notification_id')->unsigned();
 			$table->string('key');
 			$table->text('value')->nullable()->default(null);
 
-			$table->foreign('notification_id')->references('id')->on('notifications')->onDelete('cascade');
+			$table->foreign('notification_id')->references('id')->on('clumsy_notifications')->onDelete('cascade');
 			$table->index('key');
 		});
 	}
@@ -31,12 +31,12 @@ class CreateNotificationMetaTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table('notification_meta', function($table)
+		Schema::table('clumsy_notification_meta', function($table)
 		{
-			$table->dropForeign('notification_meta_notification_id_foreign');
+			$table->dropForeign('clumsy_notification_meta_notification_id_foreign');
 		});
 
-		Schema::drop('notification_meta');
+		Schema::drop('clumsy_notification_meta');
 	}
 
 }
