@@ -71,7 +71,7 @@ class Notifier {
 	{
 		if (!($target instanceof Collection))
 		{
-			$target = with(new Collection)->add($target);
+			$target = new Collection(array($target));
 		}
 
 		return $this->batch($notification, $target);
