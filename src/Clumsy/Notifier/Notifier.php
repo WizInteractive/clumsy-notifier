@@ -2,6 +2,7 @@
 
 use Closure;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\View;
 use Clumsy\Notifier\Models\Notification;
@@ -207,5 +208,65 @@ class Notifier {
 		    	$message->to($address, $recipient)->subject($subject);
 		    }
 		});
+	}
+
+	public function deleteByMeta($meta_key, $meta_value = null)
+	{
+		Notification::whereIn('id', function($query) use($meta_key, $meta_value)
+		{
+			$query->select('notification_id')
+				  ->from('notification_meta')
+				  ->where('key', $meta_key);
+
+			if ($meta_value)
+			{
+				$query->where('value', $meta_value);
+			}
+		})
+		->delete();
+	}
+
+	public function dissociate($association_type, $association_id, $options = array())
+	{
+		$defaults = array(
+			'triggered'  => false,
+			'slug'       => false,
+			'meta_key'   => false,
+			'meta_value' => false,
+		);
+
+		$options = array_merge($defaults, $options);
+
+        $query = DB::table('notificationication_associations')
+				   ->select('notification_associations.id')
+				   ->join('notifications', 'notifications.id', '=', 'notification_associations.notification_id')
+				   ->join('notification_meta', 'notifications.id', '=', 'notification_meta.notification_id')
+				   ->where('notification_association_type', $association_type)
+				   ->where('notification_association_id', $association_id)
+				   ->where('triggered', $options['triggered']);
+
+		if ($options['slug'])
+		{
+			$query->where('slug', $options['slug']);
+		}
+
+		if ($options['meta_key'])
+		{
+			$query->where('key', $options['meta_key']);
+		}
+
+		if ($options['meta_value'])
+		{
+			$query->where('value', $options['meta_value']);
+		}
+							
+		$notifications = $query->lists('id');
+
+        if (sizeof($notifications))
+        {
+        	return DB::table('notification_associations')->whereIn('id', $notifications)->delete();
+        }
+
+        return false;
 	}
 }
