@@ -237,7 +237,7 @@ class Notifier {
 
 		$options = array_merge($defaults, $options);
 
-        $query = DB::table('notificationication_associations')
+        $query = DB::table('notification_associations')
 				   ->select('notification_associations.id')
 				   ->join('notifications', 'notifications.id', '=', 'notification_associations.notification_id')
 				   ->join('notification_meta', 'notifications.id', '=', 'notification_meta.notification_id')
