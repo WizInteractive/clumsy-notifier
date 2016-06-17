@@ -63,10 +63,11 @@ class TriggerPendingNotificationsCommand extends Command {
                         foreach ($notifications as $notification)
                         {
                             $model = $notification->notification_association_type;
-                            $target = $model::find($notification->notification_association_id);
-                            if ($target)
-                            {
-                                $target->triggerNotification($notification);
+                            if ($notification->shouldTrigger()) {
+                                $target = $model::find($notification->notification_association_id);
+                                if ($target) {
+                                    $target->triggerNotification($notification);
+                                }
                             }
                         }
 
