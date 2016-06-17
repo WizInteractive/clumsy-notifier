@@ -54,7 +54,7 @@ class TriggerPendingNotificationsCommand extends Command {
         }
 
         Notification::with('meta')
-                    ->select('*', 'notification_associations.id as pivot_id')
+                    ->select('notifications.*', 'notification_associations.notification_association_type', 'notification_associations.notification_association_id', 'notification_associations.triggered', 'notification_associations.read', 'notification_associations.id as pivot_id')
                     ->join('notification_associations', 'notifications.id', '=', 'notification_associations.notification_id')
                     ->where('triggered', false)
                     ->where('visible_from', '<=', Carbon::now()->toDateTimeString())
@@ -77,7 +77,7 @@ class TriggerPendingNotificationsCommand extends Command {
                         $count = count($notifications);
                         $this->info("Triggered {$count} notifications");
                     });
-        
+
         $this->info("All pending notifications triggered");
     }
 
